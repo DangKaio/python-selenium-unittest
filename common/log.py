@@ -18,7 +18,7 @@ log_path = globalparam.log_path
 class Log:
 
     def __init__(self):
-        # 文件的命名 
+        # 文件的命名
         self.logname = os.path.join(
             log_path, '%s.log' % time.strftime('%Y_%m_%d'))
         self.logger = logging.getLogger()
