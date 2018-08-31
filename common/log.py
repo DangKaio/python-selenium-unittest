@@ -1,7 +1,7 @@
 #!user/bin/env python
 # coding=utf-8
 # @Author  : Dang
-# @Time    : 2018/5/23 17:25
+# @Time    : 2018/6/10 17:25
 # @Email   : 1370465454@qq.com
 # @File    : log.py
 # @Description:用来输出执行过程中打印信息
@@ -21,7 +21,7 @@ class Log:
         # 文件的命名
         self.logname = os.path.join(
             log_path, '%s.log' % time.strftime('%Y_%m_%d'))
-        self.logger = logging.getLogger()
+        self.logger = logging.getLogger('record')
         self.logger.setLevel(logging.DEBUG)
         # 日志输出格式
         self.formatter = logging.Formatter(
@@ -29,7 +29,7 @@ class Log:
 
     def __console(self, level, message):
         # 创建一个FileHandler，用于写到本地
-        fh = logging.FileHandler(self.logname, 'a')  # 追加模式
+        fh = logging.FileHandler(self.logname, 'a',encoding='utf-8')  # 追加模式
         fh.setLevel(logging.DEBUG)
         fh.setFormatter(self.formatter)
         self.logger.addHandler(fh)

@@ -1,5 +1,4 @@
 
 *.log
-report/test_report/2018-06-10_10_55_03result.html
 *.html
 *.pyc

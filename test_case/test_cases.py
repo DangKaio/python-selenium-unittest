@@ -1,9 +1,9 @@
-#!user/bin/env python
-# coding=utf-8
-# @Author  : Dang
-# @Time    : 2018/5/22 17:25
-# @Email   : 1370465454@qq.com
-# @File    : log.py
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# @Author: Dang Kai
+# @Date: 2018-08-29 14:35:26
+# @Last Modified time: 2018-08-30 17:31:54
+# @E-mail: 1370465454@qq.com
 # @Description:
 from time import sleep
 import sys
@@ -39,7 +39,7 @@ class Page_Login(my_test.My_Test):
         # self.dr.find_element_by_link_text("登录").click()
         # self.dr.find_element_by_partial_link_text("登录").click()
         # # self.dr.find_element_by_xpath("//*[@id="js-signin-btn"]").click()
-        
+
     @unittest.skip("I don't want to run this case.")
     def test_2login_pwd_error(self):
         '''密码错误'''
