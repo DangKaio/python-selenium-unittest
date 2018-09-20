@@ -2,39 +2,42 @@
 # -*- coding: utf-8 -*-
 # @Author: Dang Kai
 # @Date: 2018-08-29 14:35:26
-# @Last Modified time: 2018-08-30 17:31:54
+# @Last Modified time: 2018-09-20 09:15:33
 # @E-mail: 1370465454@qq.com
 # @Description:
+import time
 from time import sleep
 import sys
 sys.path.append('../')
-from common import my_test, pyselenium
-from config import globalparam
-# sys.path.append(globalparam.config_file_path)
+from common import my_test
 import unittest
 from base_page import IndexPage_handle
 
 
 class OpenHideLocators:
     # 隐藏的属性需要更改之后才能获取到
-    js = "document.getElementById('toast').style.display='block'"
+    js = "document.getElementById('checkWay').style.display='block'"
     # js1 = "document.getElementById('js-signin-btn').click()"
 
 
 class Page_Login(my_test.My_Test):
 
     def test_1login_success(self):
-        '''登陆成功'''
-        IndexPage_handle.login(self, "dangkai", "dk137046..")
-        # sleep(3)
-        # links = self.dr.find_elements_by_tag_name("a")
+        '''登陆成功,username名字  password密码'''
+        IndexPage_handle.login(self, "username", "password")
+        sleep(3)
+        # self.dr.execute_script(OpenHideLocators.js1)
+        # time.sleep(10)
+        self.dr.find_element_by_css_selector("#captchaBox > div > div.geetest_btn > div.geetest_radar_btn > div.geetest_radar_tip").click()
+        time.sleep(10)
+        # links = self.dr.find_element_by_css_selector("#input1").sendkey()
         # for link in links:
         #     if not "_blank" in link.get_attribute("target") and ("google" in link.get_attribute("href") or not "http" in link.get_attribute("href")):
         #         link.click()
 
         #         self.dr.back()
         # self.dr.find_element_by_id("js-signin-btn").click()
-        sleep(5)
+        # sleep(5)
         # self.dr.execute_script(OpenHideLocators.js1)
         # self.dr.find_element_by_link_text("登录").click()
         # self.dr.find_element_by_partial_link_text("登录").click()

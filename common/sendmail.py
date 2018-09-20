@@ -14,11 +14,9 @@ import time
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from config import globalparam
-# sys.path.append(globalparam.config_file_path)
 from common.log import Log
 # 测试报告的路径
 reportPath = globalparam.report_path
-# print(reportPath)
 # 配置收发件人
 recvaddress = ['1370465454@qq.com']
 # 163的用户名和密码

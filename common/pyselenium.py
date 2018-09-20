@@ -12,9 +12,11 @@ from selenium.webdriver.support.select import Select
 from selenium.common.exceptions import *  # 导入所有的异常类
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-import sys
+import sys,time,os
 sys.path.append('../')
 from config import globalparam
+from common.log import Log
+logger=Log()
 
 
 class PySelenium(object):
@@ -54,14 +56,6 @@ class PySelenium(object):
                 print("找不到驱动")
         except Exception as msg:
             print("%s" % msg)
-
-    class BasePage(object):
-
-    def __init__(self,driver):
-        """
-        :param driver:打开浏览器驱动
-        """
-        self.driver = driver
 
     def get_page_title(self):
         logger.info("当前页面的title为: %s" % self.driver.title)
@@ -292,17 +286,17 @@ class PySelenium(object):
         return result
 
 
-    def browser_back():
+    def browser_back(self):
         """浏览器后退"""
         self.driver.back()
 
-    def browser_forward():
+    def browser_forward(self):
         """浏览器前进"""
-        self.driver.forward()
+        self.driver.forward(self)
 
     def open_url(self, url):
         """打开站点"""
         self.driver.get(url)
 
     if __name__ == '__main__':
-        open_url(self, "https://www.imooc.com/")
+        open_url("https://www.imooc.com/")

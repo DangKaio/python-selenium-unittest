@@ -14,9 +14,9 @@ class Read_Config:
         data = fd.read()
         if data[:3] == codecs.BOM_UTF8:
             data = data[3:]
-            files = codes.open(configpath, "w")
-            file.write(data)
-            file.close()
+            files = codecs.open(configpath, "w")
+            files.write(data)
+            files.close()
         fd.close()
 
         self.cf = configparser.ConfigParser()

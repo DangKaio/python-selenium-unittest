@@ -11,7 +11,6 @@ import sys
 sys.path.append('../')
 from common.pyselenium import PySelenium
 from config import globalparam
-# sys.path.append(globalparam.config_file_path)
 from common.log import Log
 logger = Log()
 
@@ -22,13 +21,14 @@ class My_Test(unittest.TestCase):
     #     super(My_Test, self).__init__()
     #     self.arg = arg
     driver=PySelenium.browser(globalparam.browser)
+    # print(driver.get_cookie())
     @classmethod#增加装饰器来满足每个用例浏览器一次启动一次退出
     def setUpClass(cls,dr=driver):
         cls.dr=dr
         cls.logger = Log()
         cls.logger.info(
             '############################### START ###############################')
-        # self.dr = pyselenium.PySelenium.browser(globalparam.browser)
+        # cls.dr = PySelenium.browser(globalparam.browser)
         # self.dr=dr#将全局变量赋值给dr,锁定dr
         cls.dr.maximize_window()
         cls.dr.implicitly_wait(30)
@@ -39,9 +39,9 @@ class My_Test(unittest.TestCase):
     def tearDownClass(cls):
         cls.logger.info(
             '############################### END ###############################')
-        cls.driver.refresh()#将退出浏览器的操作变成刷新浏览器，用于不同用例之间的接洽操作
+        # cls.driver.refresh()#将退出浏览器的操作变成刷新浏览器，用于不同用例之间的接洽操作
         # cls.dr.quit()
-    # # driver=pyselenium.PySelenium.browser(globalparam.browser)#全局定义driver,实现了一次启动
+    # driver=pyselenium.PySelenium.browser(globalparam.browser)#全局定义driver,实现了一次启动
     # def setUp(self,dr=driver):
     #     self.logger = Log()
     #     self.logger.info(
@@ -52,7 +52,7 @@ class My_Test(unittest.TestCase):
     #     self.dr.implicitly_wait(30)
     #     self.verificationErrors =[]
     #     self.accept_next_alert =True
-        
+
     # def tearDown(self):
     #     self.logger.info(
     #         '############################### End ###############################')
@@ -62,4 +62,4 @@ class My_Test(unittest.TestCase):
     #         print(e)
     #     finally:
     #         self.assertEqual([], self.verificationErrors)
-        
+

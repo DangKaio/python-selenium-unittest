@@ -18,10 +18,8 @@ logger = log.Log()
 def create_suite():
     TestSuite = unittest.TestSuite()  # 测试集
     test_dir = os.getcwd() + '\\test_case\\'
-    # print(testdir)
     suite = unittest.defaultTestLoader.discover(
         start_dir=test_dir, pattern='test*.py', top_level_dir=None)
-    # print(discover)
     for test_case in suite:
         TestSuite.addTests(test_case)
     return TestSuite
