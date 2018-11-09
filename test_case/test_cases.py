@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # @Author: Dang Kai
 # @Date: 2018-08-29 14:35:26
-# @Last Modified time: 2018-09-20 09:15:33
+# @Last Modified time: 2018-09-20 10:52:44
 # @E-mail: 1370465454@qq.com
 # @Description:
 import time
@@ -28,7 +28,8 @@ class Page_Login(my_test.My_Test):
         sleep(3)
         # self.dr.execute_script(OpenHideLocators.js1)
         # time.sleep(10)
-        self.dr.find_element_by_css_selector("#captchaBox > div > div.geetest_btn > div.geetest_radar_btn > div.geetest_radar_tip").click()
+        self.dr.find_element_by_css_selector(
+            "#captchaBox > div > div.geetest_btn > div.geetest_radar_btn > div.geetest_radar_tip").click()
         time.sleep(10)
         # links = self.dr.find_element_by_css_selector("#input1").sendkey()
         # for link in links:

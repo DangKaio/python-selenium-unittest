@@ -29,14 +29,14 @@ class Log:
 
     def __console(self, level, message):
         # 创建一个FileHandler，用于写到本地
-        fh = logging.FileHandler(self.logname, 'a',encoding='utf-8')  # 追加模式
-        fh.setLevel(logging.DEBUG)
+        fh = logging.FileHandler(self.logname, 'a', encoding='utf-8')  # 追加模式
+        fh.setLevel(logging.ERROR)
         fh.setFormatter(self.formatter)
         self.logger.addHandler(fh)
 
         # 创建一个StreamHandler,用于输出到控制台
         ch = logging.StreamHandler()
-        ch.setLevel(logging.DEBUG)
+        ch.setLevel(logging.INFO)
         ch.setFormatter(self.formatter)
         self.logger.addHandler(ch)
 

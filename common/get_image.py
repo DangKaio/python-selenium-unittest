@@ -1,158 +1,258 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# @Author: Dang Kai
+# @Date: 2018-09-20 17:00:47
+# @Last Modified time: 2018-09-21 09:53:06
+# @E-mail: 1370465454@qq.com
+# @Description:
+
 from selenium import webdriver
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver import ActionChains
+from bs4 import BeautifulSoup
+from urllib.request import urlretrieve
 from PIL import Image
 import time
+import re
+import random
+import os
 
 
 class OpenHideLocators:
     """"隐藏的属性需要更改之后才能获取到"""
-    # js = "document.getElementById('checkWay').style.display='block'"
-    # js1 = "document.getElementById('js-signin-btn').click()"
-    js = "$('.geetest_canvas_fullbg').css('display','block');"
-    js1 = "document.getElementsByClassName('geetest_canvas_fullbg')[0].style.display='none'"
-    # js1="$('.geetest_canvas_fullbg').css('display','none');"
+    display_block = "$('.geetest_canvas_fullbg').css('display','block');"
+    display_none = "document.getElementsByClassName('geetest_canvas_fullbg')[0].style.display='none'"
 
 
-def get_snap(driver, save_name):
-    driver.save_screenshot(save_name)
-    page_snap_obj = Image.open(save_name)
-    return page_snap_obj
+class Crack():
 
+    def __init__(self):
+        """
+        初始化
+        """
+        self.url = 'https://passport.cnblogs.com/user/signin'
+        self.driver = webdriver.Chrome()
+        self.wait = WebDriverWait(self.driver, 10, 0.5)
 
-def get_image(driver, filename):
-    img = driver.find_element_by_class_name('geetest_canvas_img')
-    time.sleep(2)
-    location = img.location
-    size = img.size
-    # print('大小'+str(size))
+    def mk_img_dir(self):
+        """
+        创建图片目录文件
+        :return:
+        """
+        if not os.path.exists('Image'):
+            os.mkdir('Image')
 
-    left = location['x']
-    top = location['y']
-    right = left + size['width']
-    bottom = top + size['height']
+    def get_image(self, filename):
+        """
+        截图
+        @filename 图片名称
+        """
+        img = self.driver.find_element_by_class_name('geetest_canvas_img')
+        time.sleep(2)
+        location = img.location
+        size = img.size
+        # print('大小'+str(size))
 
-    page_snap_obj = get_snap(driver, filename + '.png')
-    image_obj = page_snap_obj.crop((left, top, right, bottom))
-    # image_obj.show()
-    return image_obj
+        left = location['x']
+        top = location['y']
+        right = left + size['width']
+        bottom = top + size['height']
 
+        page_snap_obj = self.get_snap(filename + '.png')
+        image_obj = page_snap_obj.crop((left, top, right, bottom))
+        # image_obj.show()
+        return image_obj
 
-def get_distance(image1, image2):
-    start = 57
-    threhold = 60
+    def get_snap(self, save_name):
+        """
+        保存图片
+        """
+        self.driver.save_screenshot('./Image/' + save_name)
+        page_snap_obj = Image.open('./Image/' + save_name)
+        return page_snap_obj
 
-    for i in range(start, image1.size[0]):
-        for j in range(image1.size[1]):
-            rgb1 = image1.load()[i, j]
-            rgb2 = image2.load()[i, j]
-            res1 = abs(rgb1[0] - rgb2[0])
-            res2 = abs(rgb1[1] - rgb2[1])
-            res3 = abs(rgb1[2] - rgb2[2])
-            # print(res1, res2, res3)
-            if not (res1 < threhold and res2 < threhold and res3 < threhold):
-                return i
-    return i
+    def is_px_equal(self, img1, img2, x, y):
+        """
+        判断两个像素是否相同
+        :param img1: 图片1
+        :param img2:图片2
+        :param x:位置1
+        :param y:位置2
+        :return:像素是否相同
+        """
+        pix1 = img1.load()[x, y]
+        pix2 = img2.load()[x, y]
+        threshold = 60
 
-
-def get_tracks(distance):
-    distance += 19  # 先滑过一点, 最后再反着滑动回来
-    v = 0
-    t = 0.2
-    forward_tracks = []
-
-    current = 0
-    mid = distance * 3 / 5
-    while current < distance:
-        if current < mid:
-            a = 2
+        if abs(pix1[0] - pix2[0]) < threshold and abs(pix1[1] - pix2[1]) < threshold and abs(pix1[2] - pix2[2]) < threshold:
+            return True
         else:
-            a = -3
+            return False
 
-        s = v * t + 0.5 * a * (t**2)
-        v = v + a * t
-        current += s
-        forward_tracks.append(round(s))
+    def get_gap(self, img1, img2):
+        """
+        获取缺口偏移量
+        :param img1: 不带缺口图片
+        :param img2: 带缺口图片
+        :return:
+        """
+        left = 57
+        for i in range(left, img1.size[0]):
+            for j in range(img1.size[1]):
+                if not self.is_px_equal(img1, img2, i, j):
+                    left = i
+                    return left
+        return left
 
-    # 反着滑动到准确位置
-    back_tracks = [-1, -1, -1, -2, -3, -2, -2, -2, -2, -1, -1, -1]  # 总共等于 -20
+    def get_track(self, distance):
+        """
+        根据偏移量和手动操作模拟计算移动轨迹
+        :param distance: 偏移量
+        :return: 移动轨迹
+        """
+        # 移动轨迹
+        tracks = []
+        # 当前位移
+        current = 60
+        # 减速阈值
+        mid = distance * 4 / 5
 
-    return {'forward_tracks': forward_tracks, 'back_tracks': back_tracks}
+        # 时间间隔
+        t = 0.2
+        # 初始速度
+        v = 0
 
+        while current < distance:
+            if current < mid:
+                a = random.uniform(2, 5)
+                print('当前距离'+str(current))
+                print('距离'+str(distance))
+                print('阈值'+str(mid))
+            else:
+                a = -(random.uniform(12.5, 13.5))
+                print('当前距离1'+str(current))
+                print('距离1'+str(distance))
+                print('阈值1'+str(mid))
+            v0 = v
+            v = v0 + a * t
+            print('v'+'='+str(v))
+            x = v0 * t + 1 / 2 * a * t * t
+            print('X'+'='+str(x))
+            current += x
 
-def crack(driver):  # 破解滑动认证
-    # 1.点击按钮，进入图片页面
-    button = driver.find_element_by_class_name('geetest_radar_tip')
-    button.click()
-    time.sleep(3)
-    driver.execute_script(OpenHideLocators.js)
-    # [0].style.display='block'
-    # print(test)
-    time.sleep(5)
-    # 2.获取没有缺口的图片
-    image1 = get_image(driver, 'full_image')
-    time.sleep(2)
-    driver.execute_script(OpenHideLocators.js1)
-    # 3.点击滑动按钮,得到有缺口的图片
-    button = driver.find_element_by_class_name('geetest_slider_button')
-    button.click()
+            if 0.6 < current - distance < 1:
+                x = x - 0.50
+                tracks.append(round(x, 2))
 
-    # 4.获取有缺口的图片
-    image2 = get_image(driver, 'full_snap')
+            elif 1 < current - distance < 1.5:
+                x = x - 1.4
+                tracks.append(round(x, 2))
+            elif 1.5 < current - distance < 3:
+                x = x - 1.8
+                tracks.append(round(x, 2))
 
-    # 5.对比两种图片的像素点,找出位移
-    distance = get_distance(image1, image2)
-    print('对比' + str(distance))
-    # 6.模拟人的行为习惯,根据总位移得到的行为轨迹
-    tracks = get_tracks(distance)
-    print(tracks)
+            else:
+                tracks.append(round(x, 2))
 
-    # 7.按照人行动轨迹先正向滑动,后反向滑动
-    button = driver.find_element_by_class_name('geetest_slider_button')
-    ActionChains(driver).click_and_hold(button).perform()
+        return tracks
 
-    # 正常人类总是自信满满地开始正向滑动,自信的表现是疯狂加速
-    for track in tracks['forward_tracks']:
-        ActionChains(driver).move_by_offset(xoffset=track, yoffset=0).perform()
+    def get_slider(self):
+        """
+        获取滑块
+        :return:滑块对象
+        """
+        try:
+            slider = self.wait.until(EC.element_to_be_clickable(
+                (By.XPATH, '/html/body/div[3]/div[2]/div[1]/div/div[1]/div[2]/div[2]')))
+            return slider
+        except TimeoutError:
+            print('加载超时...')
 
-    # 结果傻逼了,正常的人类停顿了一下,回过神来发现,卧槽,滑过了,然后开始反向滑动
-    time.sleep(0.3)
-    for back_track in tracks['back_tracks']:
-        ActionChains(driver).move_by_offset(
-            xoffset=back_track, yoffset=0).perform()
+    def move_to_gap(self, slider, tracks):
+        """
+        将滑块移动至偏移量处
+        :param slider: 滑块
+        :param tracks: 移动轨迹
+        :return:
+        """
+        action = ActionChains(self.driver)
+        action.click_and_hold(slider).perform()
+        for x in tracks:
+            action.move_by_offset(xoffset=x, yoffset=-1).perform()
+            action = ActionChains(self.driver)
+        time.sleep(1)
+        action.release().perform()
 
-    # 小范围震荡一下, 进一步迷惑极验后台, 这一步可以极大的提高成功率
-    time.sleep(0.1)
-    ActionChains(driver).move_by_offset(xoffset=-3, yoffset=0).perform()
-    ActionChains(driver).move_by_offset(xoffset=3, yoffset=0).perform()
+    def success_check(self):
+        """
+        验证是否成功
+        :return:
+        """
+        try:
+            if re.findall('gt_success', self.browser.page_source, re.S):
+                print('验证成功！')
+                return True
+            else:
+                print('验证失败！')
+                return False
+        except TimeoutError:
+            print('加载超时...')
+        finally:
+            pass
 
-    # 成功后,骚包人类总喜欢默默地欣赏一下自己拼图的成果,然后恋恋不舍地松开那只脏手
-    time.sleep(0.5)
-    ActionChains(driver).release().perform()
+    def cnblog_crack(self):  # 破解滑动认证
+        # 1.点击按钮，进入图片页面
+        button = self.wait.until(EC.element_to_be_clickable(
+                (By.CLASS_NAME, 'geetest_radar_tip')))
+        #self.driver.find_element_by_class_name('geetest_radar_tip')
+        button.click()
+        time.sleep(3)
+        self.driver.execute_script(OpenHideLocators.display_block)
+        time.sleep(5)
+        # 2.获取没有缺口的图片
+        image1 = self.get_image('full_image')
+        time.sleep(2)
+        self.driver.execute_script(OpenHideLocators.display_none)
+        # 3.点击滑动按钮,得到有缺口的图片
+        button = self.driver.find_element_by_class_name(
+            'geetest_slider_button')
+        button.click()
 
+        # 4.获取有缺口的图片
+        image2 = self.get_image('full_snap')
 
-def login_cnblogs(username, password):
-    driver = webdriver.Chrome()
-    # try:
-    # 1、输入账号密码回车
-    driver.implicitly_wait(3)
-    driver.get('https://passport.cnblogs.com/user/signin')
+        # 5.对比两种图片的像素点,找出位移
+        distance = self.get_gap(image1, image2) * 1.138
+        print('对比' + str(distance))
+        slider = self.get_slider()
+        # 6.模拟人的行为习惯,根据总位移得到的行为轨迹
+        tracks = self.get_track(distance)
+        print(tracks)
+        self.move_to_gap(slider, tracks)
+    def login_cnblogs(self, username, password):
+        # try:
+        #     while True:
+        self.driver.implicitly_wait(3)
+        self.driver.get(self.url)
+        self.mk_img_dir()
+        input_username = self.driver.find_element_by_id('input1')
+        input_pwd = self.driver.find_element_by_id('input2')
+        signin = self.driver.find_element_by_id('signin')
 
-    input_username = driver.find_element_by_id('input1')
-    input_pwd = driver.find_element_by_id('input2')
-    signin = driver.find_element_by_id('signin')
+        input_username.send_keys(username)
+        input_pwd.send_keys(password)
+        signin.click()
 
-    input_username.send_keys(username)
-    input_pwd.send_keys(password)
-    signin.click()
-
-    # 2、破解滑动认证
-    crack(driver)
-
-    time.sleep(10)  # 睡时间长一点，确定登录成功
-    # finally:
-    #     # driver.close()
-    #     pass
-
-
+        # 2、破解滑动认证
+        self.cnblog_crack()
+        time.sleep(3)
+        CHECK = check.success_check()
+        #         if CHECK == True:
+        #             break
+        # except Exception:
+        #     print('程序出错啦！')
 if __name__ == '__main__':
-    login_cnblogs(username='', password='')
+    Cracks = Crack()
+    Cracks.login_cnblogs(username='dangkai', password='dk137456..')

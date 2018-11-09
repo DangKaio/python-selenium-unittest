@@ -10,11 +10,14 @@ import sys
 sys.path.append('../')
 from config import globalparam
 
+
 class IndexPage_handle:
+
     def login(self, username, password):
         # 登录页面
         self.dr.get(globalparam.base_url)
-        self.dr.find_element_by_css_selector('#span_userinfo > a:nth-child(1)').click()
+        self.dr.find_element_by_css_selector(
+            '#span_userinfo > a:nth-child(1)').click()
         self.dr.find_element_by_css_selector('#input1').send_keys(username)
         # # PySelenium.get_element(self, 'id->userId').clear()
         # # PySelenium.get_element(self, 'id->userId').send_keys(username)
@@ -27,25 +30,16 @@ class IndexPage_handle:
         self.dr.get(globalparam.base_url)
         print(self.dr.get_cookies())
 
-    def input_search_key(self,values):
+    def input_search_key(self, values):
         """输入搜索关键词"""
-        self.dr.clear_type('id->kw',values)
+        self.dr.clear_type('id->kw', values)
+
     def click_search_button(self):
         """点击搜索按钮"""
         self.dr.click('id->su')
+
     def return_title(self):
         """返回该页面的title"""
         return self.dr.get_title()
     if __name__ == '__main__':
         login_cookies(self)
-
-
-
-
-
-
-
-
-
-
-

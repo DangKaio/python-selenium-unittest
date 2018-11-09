@@ -12,11 +12,13 @@ from selenium.webdriver.support.select import Select
 from selenium.common.exceptions import *  # 导入所有的异常类
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-import sys,time,os
+import sys
+import time
+import os
 sys.path.append('../')
 from config import globalparam
 from common.log import Log
-logger=Log()
+logger = Log()
 
 
 class PySelenium(object):
@@ -61,11 +63,11 @@ class PySelenium(object):
         logger.info("当前页面的title为: %s" % self.driver.title)
         return self.driver.title
 
-
     def find_element(self, *loc):
         try:
             # 元素可见时，返回查找到的元素；以下入参为元组的元素，需要加*
-            WebDriverWait(self.driver, 30).until(lambda driver: driver.find_element(*loc).is_displayed())
+            WebDriverWait(self.driver, 30).until(
+                lambda driver: driver.find_element(*loc).is_displayed())
             return self.driver.find_element(*loc)
         except NoSuchElementException:
             logger.warning('找不到定位元素: %s' % loc[1])
@@ -78,9 +80,9 @@ class PySelenium(object):
 
     def get_screent_img(self):
         '''将页面截图下来'''
-        file_path = os.path.dirname(os.path.abspath('.'))+'./screenshots/'
+        file_path = os.path.dirname(os.path.abspath('.')) + './screenshots/'
         now = time.strftime("%Y-%m-%d_%H_%M_%S_")
-        screen_name = file_path+now+'.png'
+        screen_name = file_path + now + '.png'
         try:
             self.driver.get_screenshot_as_file(screen_name)
             logger.info("页面已截图，截图的路径在项目: /screenshots路径下")
@@ -88,13 +90,13 @@ class PySelenium(object):
             logger.error("失败截图 %s" % ne)
             self.get_screent_img()
 
-    def send_key(self, loc, text):
+    def send_key(self, *loc, text):
         logger.info('清空文本框内容: %s...' % loc[1])
         self.find_element(*loc).clear()
         time.sleep(1)
         logger.info('输入内容方式 by %s: %s...' % (loc[0], loc[1]))
         logger.info('输入内容: %s' % text)
-            #self.log.myloggger('Input: %s' % text, flag=0)
+        #self.log.myloggger('Input: %s' % text, flag=0)
         try:
             self.find_element(*loc).send_keys(text)
             time.sleep(2)
@@ -111,7 +113,7 @@ class PySelenium(object):
             logger.error("无法点击元素: %s" % e)
             raise
 
-    def clear(self,loc):
+    def clear(self, loc):
         '''输入文本框清空操作'''
         element = self.find_element(*loc)
         try:
@@ -145,7 +147,7 @@ class PySelenium(object):
         self.driver.forward()
         logger.info('前进到下一个页面')
 
-    def wait(self,seconds):
+    def wait(self, seconds):
         self.driver.implicitly_wait(seconds)
         logger.info("等待 %d 秒" % seconds)
 
@@ -213,17 +215,18 @@ class PySelenium(object):
         element = self.find_element(*loc)
         Select(element).select_by_value(text)
 
-    def is_text_in_element(self,loc,text,timeout=10):
+    def is_text_in_element(self, loc, text, timeout=10):
         """判断文本在元素里，没定位到元素返回False，定位到元素返回判断结果布尔值"""
         try:
-            result = WebDriverWait(self.driver,timeout,1).until(EC.text_to_be_present_in_element(loc,text))
+            result = WebDriverWait(self.driver, timeout, 1).until(
+                EC.text_to_be_present_in_element(loc, text))
         except TimeoutException:
-            print("元素没有定位到:"+str(loc))
+            print("元素没有定位到:" + str(loc))
             return False
         else:
             return result
 
-    def is_text_in_value(self,loc,value,timeout = 10):
+    def is_text_in_value(self, loc, value, timeout=10):
         '''
         判断元素的value值，没定位到元素返回false,定位到返回判断结果布尔值
         result = driver.text_in_element(element, text)
@@ -239,52 +242,60 @@ class PySelenium(object):
 
     def is_title(self, title, timeout=10):
         '''判断title完全等于'''
-        result = WebDriverWait(self.driver, timeout, 1).until(EC.title_is(title))
+        result = WebDriverWait(self.driver, timeout,
+                               1).until(EC.title_is(title))
         return result
 
     def is_title_contains(self, title, timeout=10):
         '''判断title包含'''
-        result = WebDriverWait(self.driver, timeout, 1).until(EC.title_contains(title))
+        result = WebDriverWait(self.driver, timeout, 1).until(
+            EC.title_contains(title))
         return result
 
     def is_selected(self, loc, timeout=10):
         '''判断元素被选中，返回布尔值,'''
-        result = WebDriverWait(self.driver, timeout, 1).until(EC.element_located_to_be_selected(loc))
+        result = WebDriverWait(self.driver, timeout, 1).until(
+            EC.element_located_to_be_selected(loc))
         return result
 
     def is_selected_be(self, loc, selected=True, timeout=10):
         '''判断元素的状态，selected是期望的参数true/False
         返回布尔值'''
-        result = WebDriverWait(self.driver, timeout, 1).until(EC.element_located_selection_state_to_be(loc, selected))
+        result = WebDriverWait(self.driver, timeout, 1).until(
+            EC.element_located_selection_state_to_be(loc, selected))
         return result
 
     def is_alert_present(self, timeout=10):
         '''判断页面是否有alert，
         有返回alert(注意这里是返回alert,不是True)
         没有返回False'''
-        result = WebDriverWait(self.driver, timeout, 1).until(EC.alert_is_present())
+        result = WebDriverWait(self.driver, timeout, 1).until(
+            EC.alert_is_present())
         return result
 
     def is_visibility(self, loc, timeout=10):
         '''元素可见返回本身，不可见返回Fasle'''
-        result = WebDriverWait(self.driver, timeout, 1).until(EC.visibility_of_element_located(loc))
+        result = WebDriverWait(self.driver, timeout, 1).until(
+            EC.visibility_of_element_located(loc))
         return result
 
     def is_invisibility(self, loc, timeout=10):
         '''元素可见返回本身，不可见返回True，没找到元素也返回True'''
-        result = WebDriverWait(self.driver, timeout, 1).until(EC.invisibility_of_element_located(loc))
+        result = WebDriverWait(self.driver, timeout, 1).until(
+            EC.invisibility_of_element_located(loc))
         return result
 
     def is_clickable(self, loc, timeout=10):
         '''元素可以点击is_enabled返回本身，不可点击返回Fasle'''
-        result = WebDriverWait(self.driver, timeout, 1).until(EC.element_to_be_clickable(loc))
+        result = WebDriverWait(self.driver, timeout, 1).until(
+            EC.element_to_be_clickable(loc))
         return result
 
     def is_located(self, loc, timeout=10):
         '''判断元素有没被定位到（并不意味着可见），定位到返回element,没定位到返回False'''
-        result = WebDriverWait(self.driver, timeout, 1).until(EC.presence_of_element_located(loc))
+        result = WebDriverWait(self.driver, timeout, 1).until(
+            EC.presence_of_element_located(loc))
         return result
-
 
     def browser_back(self):
         """浏览器后退"""
@@ -297,6 +308,9 @@ class PySelenium(object):
     def open_url(self, url):
         """打开站点"""
         self.driver.get(url)
+
+#
+
 
     if __name__ == '__main__':
         open_url("https://www.imooc.com/")

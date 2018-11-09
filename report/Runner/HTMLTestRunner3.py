@@ -120,6 +120,7 @@ from xml.sax import saxutils
 
 class OutputRedirector(object):
     """ Wrapper to redirect stdout or stderr """
+
     def __init__(self, fp):
         self.fp = fp
 
@@ -608,7 +609,8 @@ class _TestResult(TestResult):
     def stopTest(self, test):
         # Usually one of addSuccess, addError or addFailure would have been called.
         # But there are some path in unittest that would bypass this.
-        # We must disconnect stdout in stopTest(), which is guaranteed to be called.
+        # We must disconnect stdout in stopTest(), which is guaranteed to be
+        # called.
         self.complete_output()
 
     def addSuccess(self, test):
@@ -657,7 +659,8 @@ class _TestResult(TestResult):
             if issubclass(err[0], test.failureException):
                 self.failure_count += 1
                 errors = self.failures
-                errors.append((subtest, self._exc_info_to_string(err, subtest)))
+                errors.append(
+                    (subtest, self._exc_info_to_string(err, subtest)))
                 output = self.complete_output()
                 self.result.append((1, test, output + '\nSubTestCase Failed:\n' + str(subtest),
                                     self._exc_info_to_string(err, subtest)))
@@ -670,7 +673,8 @@ class _TestResult(TestResult):
             else:
                 self.error_count += 1
                 errors = self.errors
-                errors.append((subtest, self._exc_info_to_string(err, subtest)))
+                errors.append(
+                    (subtest, self._exc_info_to_string(err, subtest)))
                 output = self.complete_output()
                 self.result.append(
                     (2, test, output + '\nSubTestCase Error:\n' + str(subtest), self._exc_info_to_string(err, subtest)))
@@ -686,7 +690,8 @@ class _TestResult(TestResult):
             self.subtestlist.append(test)
             self.success_count += 1
             output = self.complete_output()
-            self.result.append((0, test, output + '\nSubTestCase Pass:\n' + str(subtest), ''))
+            self.result.append(
+                (0, test, output + '\nSubTestCase Pass:\n' + str(subtest), ''))
             if self.verbosity > 1:
                 sys.stderr.write('ok ')
                 sys.stderr.write(str(subtest))
@@ -717,7 +722,8 @@ class HTMLTestRunner(Template_mixin):
         test(result)
         self.stopTime = datetime.datetime.now()
         self.generateReport(test, result)
-        print('\nTime Elapsed: %s' % (self.stopTime-self.startTime), file=sys.stderr)
+        print('\nTime Elapsed: %s' %
+              (self.stopTime - self.startTime), file=sys.stderr)
         return result
 
     def sortResult(self, result_list):
@@ -725,12 +731,12 @@ class HTMLTestRunner(Template_mixin):
         # Here at least we want to group them together by class.
         rmap = {}
         classes = []
-        for n,t,o,e in result_list:
+        for n, t, o, e in result_list:
             cls = t.__class__
             if cls not in rmap:
                 rmap[cls] = []
                 classes.append(cls)
-            rmap[cls].append((n,t,o,e))
+            rmap[cls].append((n, t, o, e))
         r = [(cls, rmap[cls]) for cls in classes]
         return r
 
@@ -742,9 +748,12 @@ class HTMLTestRunner(Template_mixin):
         startTime = str(self.startTime)[:19]
         duration = str(self.stopTime - self.startTime)
         status = []
-        if result.success_count: status.append(u'通过 %s' % result.success_count)
-        if result.failure_count: status.append(u'失败 %s' % result.failure_count)
-        if result.error_count:   status.append(u'错误 %s' % result.error_count  )
+        if result.success_count:
+            status.append(u'通过 %s' % result.success_count)
+        if result.failure_count:
+            status.append(u'失败 %s' % result.failure_count)
+        if result.error_count:
+            status.append(u'错误 %s' % result.error_count)
         if status:
             status = ' '.join(status)
         else:
@@ -764,13 +773,13 @@ class HTMLTestRunner(Template_mixin):
         ending = self._generate_ending()
         chart = self._generate_chart(result)
         output = self.HTML_TMPL % dict(
-            title = saxutils.escape(self.title),
-            generator = generator,
-            stylesheet = stylesheet,
-            heading = heading,
-            report = report,
-            ending = ending,
-            chart_script = chart
+            title=saxutils.escape(self.title),
+            generator=generator,
+            stylesheet=stylesheet,
+            heading=heading,
+            report=report,
+            ending=ending,
+            chart_script=chart
         )
         # print(output)
         self.stream.write(output.encode('utf8'))
@@ -782,14 +791,14 @@ class HTMLTestRunner(Template_mixin):
         a_lines = []
         for name, value in report_attrs:
             line = self.HEADING_ATTRIBUTE_TMPL % dict(
-                name = saxutils.escape(name),
-                value = saxutils.escape(value),
+                name=saxutils.escape(name),
+                value=saxutils.escape(value),
             )
             a_lines.append(line)
         heading = self.HEADING_TMPL % dict(
-            title = saxutils.escape(self.title),
-            parameters = ''.join(a_lines),
-            description = saxutils.escape(self.description),
+            title=saxutils.escape(self.title),
+            parameters=''.join(a_lines),
+            description=saxutils.escape(self.description),
         )
         return heading
 
@@ -799,10 +808,13 @@ class HTMLTestRunner(Template_mixin):
         for cid, (cls, cls_results) in enumerate(sortedResult):
             # subtotal for a class
             np = nf = ne = 0
-            for n,t,o,e in cls_results:
-                if n == 0: np += 1
-                elif n == 1: nf += 1
-                else: ne += 1
+            for n, t, o, e in cls_results:
+                if n == 0:
+                    np += 1
+                elif n == 1:
+                    nf += 1
+                else:
+                    ne += 1
 
             # format class description
             if cls.__module__ == "__main__":
@@ -813,25 +825,26 @@ class HTMLTestRunner(Template_mixin):
             desc = doc and '%s: %s' % (name, doc) or name
 
             row = self.REPORT_CLASS_TMPL % dict(
-                style = ne > 0 and 'errorClass' or nf > 0 and 'failClass' or 'passClass',
-                desc = desc,
-                count = np+nf+ne,
-                Pass = np,
-                fail = nf,
-                error = ne,
-                cid = 'c%s' % (cid+1),
+                style=ne > 0 and 'errorClass' or nf > 0 and 'failClass' or 'passClass',
+                desc=desc,
+                count=np + nf + ne,
+                Pass=np,
+                fail=nf,
+                error=ne,
+                cid='c%s' % (cid + 1),
             )
             rows.append(row)
 
-            for tid, (n,t,o,e) in enumerate(cls_results):
+            for tid, (n, t, o, e) in enumerate(cls_results):
                 self._generate_report_test(rows, cid, tid, n, t, o, e)
 
         report = self.REPORT_TMPL % dict(
-            test_list = ''.join(rows),
-            count = str(result.success_count+result.failure_count+result.error_count),
-            Pass = str(result.success_count),
-            fail = str(result.failure_count),
-            error = str(result.error_count),
+            test_list=''.join(rows),
+            count=str(result.success_count +
+                      result.failure_count + result.error_count),
+            Pass=str(result.success_count),
+            fail=str(result.failure_count),
+            error=str(result.error_count),
         )
         return report
 
@@ -846,7 +859,7 @@ class HTMLTestRunner(Template_mixin):
     def _generate_report_test(self, rows, cid, tid, n, t, o, e):
         # e.g. 'pt1.1', 'ft1.1', etc
         has_output = bool(o or e)
-        tid = (n == 0 and 'p' or 'f') + 't%s.%s' % (cid+1,tid+1)
+        tid = (n == 0 and 'p' or 'f') + 't%s.%s' % (cid + 1, tid + 1)
         name = t.id().split('.')[-1]
         doc = t.shortDescription() or ""
         desc = doc and ('%s: %s' % (name, doc)) or name
@@ -854,13 +867,14 @@ class HTMLTestRunner(Template_mixin):
 
         script = self.REPORT_TEST_OUTPUT_TMPL % dict(
             id=tid,
-            output=saxutils.escape(o+e),
+            output=saxutils.escape(o + e),
         )
 
         row = tmpl % dict(
             tid=tid,
             Class=(n == 0 and 'hiddenRow' or 'none'),
-            style=(n == 2 and 'errorCase' or (n == 1 and 'failCase' or 'none')),
+            style=(n == 2 and 'errorCase' or (
+                n == 1 and 'failCase' or 'none')),
             desc=desc,
             script=script,
             status=self.STATUS[n],
@@ -885,6 +899,7 @@ class TestProgram(unittest.TestProgram):
     A variation of the unittest.TestProgram. Please refer to the base
     class for command line parameters.
     """
+
     def runTests(self):
         # Pick HTMLTestRunner as the default test runner.
         # base class's testRunner parameter is not useful because it means
