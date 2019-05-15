@@ -1,4 +1,4 @@
-﻿使用了python+selenium+unittest
+# 使用了python+selenium+unittest
 
  =====
  觉得有用的希望给个star
@@ -16,11 +16,11 @@ V6:对登录的异常情况、搜索进行添加
 
 V7:增加截图，针对网页和弹窗分别截图。增加发送邮件模块
 
-globalparam.py 修改
+# globalparam.py 修改
 
 到目前为止，感觉还有很多要做的，比如对selenium进行二次封装，这个框也是在从其他人的代码中学到的，稍微改动了一部分改成自身风格的
 
-环境搭建配置
+# 环境搭建配置
 Python 3.6.5
 selenium 3.11.0
 requests 2.18.4
@@ -34,7 +34,7 @@ selenium提供了三种模式的断言：assert,verify,waitfor
     Waitfor：等待某些条件变为真，一般使用在AJAX应用程序的测试
 
 
-断言常用的有，具体见如下：
+# 断言常用的有，具体见如下：
 assertLocation：判断当前是在正确的页面
 assertTitle：检查当前页面的title是否正确
 assertValue：检查input的值，check or radio，有为on，无为off
